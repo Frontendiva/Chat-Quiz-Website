@@ -2,13 +2,15 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';  // Используем Routes вместо Router
 import AuthPage from './component/AuthPage/AuthPage';
-import MainPage from './component/MainPage/MainPage';
+import MainPage from './component/MainPage/HistoryPage';
+import ThemeSelectionPage from './component/ThemeSelectionPage/ThemeSelectionPage';
 
 const App = () => {
   return (
     <Routes>
       <Route path="/" element={<AuthPage />} />
-      <Route path="/homePage" element={<MainPage />} />
+      <Route path="/mainPage" element={<MainPage />} />
+      <Route path="/themeSelection" element={<ThemeSelectionPage />} />
     </Routes>
   );
 };
