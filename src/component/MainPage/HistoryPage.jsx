@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-
+import ChatIcon from '../ChatIcon/ChatIcon';
+import ChatWindow from '../ChatWindow/ChatWindow';
  
 const MainPageWrapper = styled.div`
   display: flex;
@@ -96,7 +97,7 @@ const MainPage = () => {
   const dispatch = useDispatch();
   const navigation = useNavigate();
   const [selectedAnswers, setSelectedAnswers] = useState({});
-
+  const [showChat, setShowChat] = useState(false);
 
 const questions = [
   {
@@ -149,10 +150,13 @@ const isAnswerCorrect = (questionId, answer) => {
   const correctAnswer = questions.find(q => q.id === questionId).correctAnswer;
   return answer === correctAnswer;
 };
+const handleChatIconClick = () => {
+  setShowChat(!showChat);
+};
 
 return (
   <MainPageWrapper>
-  <WelcomeMessage>Добро пожаловать на главную страницу!</WelcomeMessage>
+  <WelcomeMessage>Игра начинается!</WelcomeMessage>
   <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
     <QuizContainer>
       <QuizTitle>Викторина дня</QuizTitle>
@@ -176,6 +180,8 @@ return (
         ))}
       </QuestionList>
     </QuizContainer>
+    <ChatIcon onClick={handleChatIconClick} />
+      {showChat && <ChatWindow onClose={() => setShowChat(false)} />}
   </MainPageWrapper>
 );
 };

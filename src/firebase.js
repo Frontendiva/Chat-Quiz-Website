@@ -1,7 +1,7 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-
+import { getFirestore } from 'firebase/firestore';
 
 
 const firebaseConfig = {
@@ -15,7 +15,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, provider, signInWithRedirect, getRedirectResult };
+export { auth, provider, firestore, signInWithRedirect, getRedirectResult };

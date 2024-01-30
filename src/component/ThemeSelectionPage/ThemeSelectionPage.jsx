@@ -1,8 +1,11 @@
 // ThemeSelectionPage.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import ChatIcon from '../ChatIcon/ChatIcon';
+import ChatWindow from '../ChatWindow/ChatWindow';
+
 
 const ThemeSelectionWrapper = styled.div`
   display: flex;
@@ -69,21 +72,26 @@ const themes = [
 ];
 
 const ThemeSelectionPage = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [showChat, setShowChat] = useState(false);
+
+  const handleChatIconClick = () => {
+    setShowChat(!showChat);
+  };
 
   const handleThemeSelect = (themeId) => {
-    // Переход на MainPage с параметром темы
-    if (themeId === 1) { // ID темы "История"
-      navigate('/mainPage', { state: { theme: 'history' } }); // Передайте выбранную тему как параметр состояния
+    
+    if (themeId === 1) { 
+      navigate('/mainPage', { state: { theme: 'history' } }); 
     } else {
       console.log('Выбрана другая тема:', themeId);
-      // Обработайте выбор других тем
+      
     }
   };
   const handleLogout = () => {
-    dispatch({ type: 'SIGN_OUT' }); // Действие для выхода из системы
-    navigate('/'); // Перенаправление на страницу авторизации
+    dispatch({ type: 'SIGN_OUT' }); 
+    navigate('/'); 
   };
 
   return (
@@ -97,8 +105,12 @@ const ThemeSelectionPage = () => {
           </ThemeCard>
         ))}
       </ThemeList>
+      <ChatIcon onClick={handleChatIconClick} />
+      {showChat && <ChatWindow />} 
+      {showChat && <ChatWindow onClose={() => setShowChat(false)} />}
     </ThemeSelectionWrapper>
   );
 };
+
 
 export default ThemeSelectionPage;
