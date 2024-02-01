@@ -1,6 +1,7 @@
 //src/redux/reducers/index.js
 
 import { combineReducers } from 'redux';
+import userReducer from './userReducer';
 
 const initialState = {
   data: [],
@@ -35,6 +36,7 @@ const dataReducer = (state = initialState, action) => {
 
 const rootReducer = combineReducers({
   data: dataReducer,
+  user: userReducer,
 });
 
 export default rootReducer;

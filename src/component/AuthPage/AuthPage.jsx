@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { auth, provider, signInWithRedirect, getRedirectResult } from '../../firebase';
+import { setUserId } from '../../redux/actions/userActions'; 
+
 
 const AuthPageWrapper = styled.div`
   display: flex;
@@ -109,14 +111,16 @@ const AuthPage = () => {
       try {
         const result = await getRedirectResult(auth);
         if (result && result.user) {
+          const uid = result.user.uid; // Получаем userId пользователя
+          dispatch(setUserId(uid)); // Сохраняем userId в Redux store
           dispatch({ type: 'SIGN_IN_WITH_GOOGLE' });
-          navigate('/homePage');
+          navigate('/readyForQuiz');
         }
       } catch (error) {
         console.error('Ошибка при обработке результата перенаправления:', error);
       }
     };
-
+  
     handleRedirectResult();
   }, [dispatch, navigate]);
 
@@ -157,7 +161,7 @@ const AuthPage = () => {
     // Ваша логика обработки отправки формы
     // Переход на другую страницу
     dispatch({ type: 'SIGN_IN_WITH_GOOGLE' });
-    navigate('/themeSelection');
+    navigate('/readyForQuiz');
   };
 
   return (
