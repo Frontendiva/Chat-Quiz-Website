@@ -1,11 +1,14 @@
-// AuthPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { auth, provider, signInWithRedirect, getRedirectResult } from '../../firebase';
-import { setUserId } from '../../redux/actions/userActions'; 
-
+import {
+  auth,
+  provider,
+  signInWithPopup,
+  createUserWithEmailAndPassword, // Добавлено для регистрации пользователя
+} from '../../firebase';
+import { setUserId } from '../../redux/actions/userActions';
 
 const AuthPageWrapper = styled.div`
   display: flex;
@@ -18,36 +21,33 @@ const AuthPageWrapper = styled.div`
 `;
 
 const AuthForm = styled.form`
-  width: 500px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.85);
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.85); 
-  border-radius: 15px; 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); 
-  backdrop-filter: blur(10px); 
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const AuthInput = styled.input`
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 16px;
-  background-color: #fff; 
+  border-radius: 5px;
+  &:focus {
+    border-color: #6e8efb;
+    outline: none;
+  }
 `;
 
 const AuthButton = styled.button`
-  width: 100%;
-  padding: 12px;
-  background-color: #6e8efb; 
-  color: #fff;
+  padding: 10px;
+  background-color: #6e8efb;
+  color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 10px; 
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -55,147 +55,80 @@ const AuthButton = styled.button`
   }
 `;
 
-const GoogleSignInButton = styled.button`
-  width: 500px;
-  padding: 12px;
+const GoogleSignInButton = styled(AuthButton)`
   background-color: #db4437;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.2s ease;
+  margin-top: 10px;
 
   &:hover {
     background-color: #c3271e;
   }
 `;
 
-const WarningMessage = styled.p`
-  color: red;
-  font-size: 14px;
-`;
-const HintMessage = styled.p`
-  color: #888;
-  font-size: 12px;
-  margin-top: 5px;
-  margin-bottom: 5px;
+const RegisterButton = styled(AuthButton)`
+  background-color: #28a745;
+  margin-top: 10px;
+
+  &:hover {
+    background-color: #218838;
+  }
 `;
 
-const ShowHideButton = styled.button`
-  background-color: transparent;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  font-size: 12px;
-  padding: 0;
-  margin-top: 5px;
-`;
-const Title = styled.h1`
-  color: #000; 
-  margin-bottom: 20px; 
+const Title = styled.h2`
+  margin-bottom: 20px;
+  color: #fff;
 `;
 
 const AuthPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const [emailHint, setEmailHint] = useState('');
-  const [passwordHint, setPasswordHint] = useState('');
 
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          const uid = result.user.uid; // Получаем userId пользователя
-          dispatch(setUserId(uid)); // Сохраняем userId в Redux store
-          dispatch({ type: 'SIGN_IN_WITH_GOOGLE' });
-          navigate('/readyForQuiz');
-        }
-      } catch (error) {
-        console.error('Ошибка при обработке результата перенаправления:', error);
-      }
-    };
-  
-    handleRedirectResult();
-  }, [dispatch, navigate]);
-
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     try {
-      signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
+      navigate('/readyForQuiz');
     } catch (error) {
       console.error('Ошибка аутентификации:', error.message);
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleRegistration = async (e) => {
     e.preventDefault();
-  
-    // Валидация перед отправкой
-    const nameRegex = /^[a-zA-Zа-яА-Я]+$/;
-  
-    if (!nameRegex.test(email)) {
-      setShowWarning(true);
-      setEmailHint('Пожалуйста, введите корректное имя пользователя');
-      console.error('Ошибка валидации: Некорректное имя пользователя');
-      return;
-    } else {
-      setEmailHint('');
+    try {
+      // Здесь вы можете добавить логику для сохранения имени пользователя
+      // После успешной регистрации
+      const userCredential = await createUserWithEmailAndPassword(auth, name + "@example.com", password);
+      const user = userCredential.user;
+      dispatch(setUserId(user.uid));
+      navigate('/readyForQuiz');
+    } catch (error) {
+      console.error('Ошибка регистрации:', error.message);
     }
-  
-    if (password.length < 8) {
-      setShowWarning(true);
-      setPasswordHint('Пароль должен содержать не менее 8 символов');
-      console.error('Ошибка валидации: Некорректный пароль');
-      return;
-    } else {
-      setPasswordHint('');
-    }
-  
-    setShowWarning(false);
-  
-    // Ваша логика обработки отправки формы
-    // Переход на другую страницу
-    dispatch({ type: 'SIGN_IN_WITH_GOOGLE' });
-    navigate('/readyForQuiz');
   };
 
   return (
     <AuthPageWrapper>
-      <AuthForm onSubmit={handleFormSubmit}>
-        <Title>Зачекинься и играй!</Title>
+      <Title>Вход или Регистрация</Title>
+      <AuthForm onSubmit={handleRegistration}>
         <AuthInput
           type="text"
           placeholder="Имя пользователя"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
-        {emailHint && <HintMessage>{emailHint}</HintMessage>}
         <AuthInput
-          type={showPassword ? 'text' : 'password'}
+          type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {passwordHint && <HintMessage>{passwordHint}</HintMessage>}
-        <ShowHideButton onClick={() => setShowPassword(!showPassword)}>
-          {showPassword ? 'Скрыть пароль' : 'Показать пароль'}
-        </ShowHideButton>
-        {showWarning && (
-          <WarningMessage>
-            Пожалуйста, проверьте введенные данные или следуйте подсказкам.
-          </WarningMessage>
-        )}
         <AuthButton type="submit">Войти</AuthButton>
-        <GoogleSignInButton onClick={handleGoogleSignIn}>Войти с Google</GoogleSignInButton>
+        <RegisterButton onClick={handleRegistration}>Регистрация</RegisterButton>
       </AuthForm>
+      <GoogleSignInButton onClick={handleGoogleSignIn}>Войти с Google</GoogleSignInButton>
     </AuthPageWrapper>
   );
 };
-
 
 export default AuthPage;

@@ -1,8 +1,14 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { 
+    getAuth, 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    getRedirectResult, 
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword // Импортируйте эту функцию
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyDJmHb8g4EG7sO1nx6RXhhIkDKm9PS978o",
@@ -14,9 +20,18 @@ const firebaseConfig = {
   measurementId: "G-N8KRCGGRZ4"
 };
 
+
 const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const firestore = getFirestore(app); 
 
-export { auth, provider, firestore, signInWithRedirect, getRedirectResult };
+export { 
+  auth, 
+  provider, 
+  firestore,
+  signInWithPopup, 
+  getRedirectResult, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+};

@@ -65,9 +65,9 @@ const LogoutButton = styled.button`
 `;
 
 const themes = [
-  { id: 1, name: 'История' },
-  { id: 2, name: 'Наука' },
-  { id: 3, name: 'Искусство' },
+  { id: 1, name: 'История', route: '/historyPage' }, // Обновлено с маршрутом
+  { id: 2, name: 'Наука: Компьютеры', route: '/sciencePage' },   // Обновлено с маршрутом
+  { id: 3, name: 'Искусство', route: '/artPage' },   // Обновлено с маршрутом
   // Дополнительные темы
 ];
 
@@ -81,22 +81,23 @@ const ThemeSelectionPage = () => {
   };
 
   const handleThemeSelect = (themeId) => {
-    
-    if (themeId === 1) { 
-      navigate('/mainPage', { state: { theme: 'history' } }); 
+    // Находим выбранную тему по её ID
+    const selectedTheme = themes.find(theme => theme.id === themeId);
+    if (selectedTheme) {
+      // Используем свойство `route` для навигации
+      navigate(selectedTheme.route, { state: { theme: selectedTheme.name.toLowerCase() } });
     } else {
-      console.log('Выбрана другая тема:', themeId);
-      
+      console.error('Тема не найдена:', themeId);
     }
   };
   const handleLogout = () => {
-    dispatch({ type: 'SIGN_OUT' }); 
-    navigate('/'); 
+    dispatch({ type: 'SIGN_OUT' });
+    navigate('/');
   };
 
   return (
     <ThemeSelectionWrapper>
-      <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+      <LogoutButton onClick={handleLogout}>Выйти</LogoutButton>
       <Title>Выберите тему викторины</Title>
       <ThemeList>
         {themes.map((theme) => (
@@ -106,11 +107,11 @@ const ThemeSelectionPage = () => {
         ))}
       </ThemeList>
       <ChatIcon onClick={handleChatIconClick} />
-      {showChat && <ChatWindow />} 
       {showChat && <ChatWindow onClose={() => setShowChat(false)} />}
     </ThemeSelectionWrapper>
   );
 };
+
 
 
 export default ThemeSelectionPage;

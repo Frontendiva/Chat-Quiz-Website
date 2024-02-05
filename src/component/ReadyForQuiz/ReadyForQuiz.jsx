@@ -1,11 +1,11 @@
 // ReadyForQuiz.jsx
 import React from 'react';
 import styled, { css } from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { firestore } from '../../firebase';
 import { doc, setDoc, deleteField } from 'firebase/firestore';
-import { useDispatch } from 'react-redux';
-import { setUserReadyForQuiz } from '../../redux/actions/userActions'; 
-import { useSelector } from 'react-redux';
+import { setUserReadyForQuiz } from '../../redux/actions/userActions';
 
 
 const Wrapper = styled.div`
@@ -56,36 +56,38 @@ const Button = styled.button`
 `;
 
 const ReadyForQuiz = () => {
-    const userId = useSelector(state => state.user.userId);
-    const dispatch = useDispatch();
-  
-    const confirmParticipation = async () => {
-      if (!userId) {
-        console.error("UserId is null or undefined");
-        return;
-      }
-      try {
-        await setDoc(doc(firestore, "users", userId), { userReadiness: true }, { merge: true });
-        dispatch(setUserReadyForQuiz(true));
-        // Дополнительные действия при подтверждении...
-      } catch (error) {
-        console.error("Ошибка при подтверждении участия: ", error);
-      }
-    };
-  
-    const cancelParticipation = async () => {
-      if (!userId) {
-        console.error("UserId is null or undefined");
-        return;
-      }
-      try {
-        await setDoc(doc(firestore, "users", userId), { userReadiness: deleteField() }, { merge: true });
-        dispatch(setUserReadyForQuiz(false));
-        // Дополнительные действия при отмене...
-      } catch (error) {
-        console.error("Ошибка при отказе от участия: ", error);
-      }
-    };
+  const userId = useSelector(state => state.user.userId);
+  const currentQuizTheme = useSelector(state => state.user.currentQuizTheme); // Получаем текущую тему викторины
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const confirmParticipation = async () => {
+    if (!userId) {
+      console.error("UserId is null or undefined");
+      return;
+    }
+    try {
+      await setDoc(doc(firestore, "users", userId), { userReadiness: true }, { merge: true });
+      dispatch(setUserReadyForQuiz(true));
+      navigate(`/themeSelection/${currentQuizTheme}`);
+    } catch (error) {
+      console.error("Ошибка при подтверждении участия: ", error);
+    }
+  };
+
+  const cancelParticipation = async () => {
+    if (!userId) {
+      console.error("UserId is null or undefined");
+      return;
+    }
+    try {
+      await setDoc(doc(firestore, "users", userId), { userReadiness: deleteField() }, { merge: true });
+      dispatch(setUserReadyForQuiz(false));
+      navigate('/'); 
+    } catch (error) {
+      console.error("Ошибка при отказе от участия: ", error);
+    }
+  };
 
 
     return (
