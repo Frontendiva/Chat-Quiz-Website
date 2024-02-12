@@ -4,6 +4,7 @@ const initialState = {
   readyForQuiz: false,
   userId: null,
   currentQuizTheme: '', 
+  userName: '',
 };
 
 const userReducer = (state = initialState, action) => {
@@ -18,7 +19,12 @@ const userReducer = (state = initialState, action) => {
         ...state,
         userId: action.payload,
       };
-    case 'SET_CURRENT_QUIZ_THEME': // Обрабатываем установку текущей темы викторины
+      case 'SET_USER_NAME':
+      return {
+        ...state,
+        userName: action.payload, 
+      };
+    case 'SET_CURRENT_QUIZ_THEME': 
       return {
         ...state,
         currentQuizTheme: action.payload,

@@ -2,6 +2,7 @@
 
 import { combineReducers } from 'redux';
 import userReducer from './userReducer';
+import authReducer from './authReducer';
 
 const initialState = {
   data: [],
@@ -35,6 +36,7 @@ const dataReducer = (state = initialState, action) => {
 };
 
 const rootReducer = combineReducers({
+  auth: authReducer,
   data: dataReducer,
   user: userReducer,
 });

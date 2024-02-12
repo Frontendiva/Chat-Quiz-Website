@@ -2,8 +2,8 @@
 
 import { put, takeEvery, all } from 'redux-saga/effects';
 import * as actions from '../actions';
+import { watchFinishQuizAndSetResults } from './quizSaga';
 
-// Пример саги для асинхронного запроса
 function* fetchDataAsync() {
   try {
     yield put(actions.fetchDataRequest());
@@ -15,15 +15,13 @@ function* fetchDataAsync() {
   }
 }
 
-// Слушатель для действия FETCH_DATA_REQUEST
 function* watchFetchData() {
   yield takeEvery(actions.FETCH_DATA_REQUEST, fetchDataAsync);
 }
 
-// Сага, объединяющая все слушатели
 export default function* rootSaga() {
   yield all([
-    watchFetchData(),
-    // Добавьте здесь другие саги при необходимости
+    watchFinishQuizAndSetResults(),
+    watchFetchData(), 
   ]);
 }

@@ -6,9 +6,9 @@ import {
   auth,
   provider,
   signInWithPopup,
-  createUserWithEmailAndPassword, // Добавлено для регистрации пользователя
+  createUserWithEmailAndPassword, 
 } from '../../firebase';
-import { setUserId } from '../../redux/actions/userActions';
+import { setUserId, setUserName } from '../../redux/actions/userActions';
 
 const AuthPageWrapper = styled.div`
   display: flex;
@@ -96,10 +96,9 @@ const AuthPage = () => {
   const handleRegistration = async (e) => {
     e.preventDefault();
     try {
-      // Здесь вы можете добавить логику для сохранения имени пользователя
-      // После успешной регистрации
       const userCredential = await createUserWithEmailAndPassword(auth, name + "@example.com", password);
       const user = userCredential.user;
+      dispatch(setUserName(name)); 
       dispatch(setUserId(user.uid));
       navigate('/readyForQuiz');
     } catch (error) {
@@ -109,7 +108,7 @@ const AuthPage = () => {
 
   return (
     <AuthPageWrapper>
-      <Title>Вход или Регистрация</Title>
+      <Title>Зачекинься и играй!</Title>
       <AuthForm onSubmit={handleRegistration}>
         <AuthInput
           type="text"

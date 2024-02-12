@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import ChatIcon from '../ChatIcon/ChatIcon';
-import ChatWindow from '../ChatWindow/ChatWindow';
+import ResultsModal from '../ModalResults/ModalResults';
+import { useDispatch, useSelector } from 'react-redux';
+import { finishQuizAndSetResultsAction } from '../../redux/sagas/quizSaga';
 
 const MainPageWrapper = styled.div`
   display: flex;
@@ -54,28 +55,17 @@ const AnswerItem = styled.li`
   }
 `;
 
-const Button = styled.button`
-  padding: 10px 20px;
-  margin: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-`;
 
 const ArtQuizPage = () => {
-    const navigate = useNavigate();
-    const [showChat, setShowChat] = useState(false);
-    const [questions, setQuestions] = useState([]);
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [showResults, setShowResults] = useState(false);
-    const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
-  
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userId = useSelector(state => state.user.userId);
+  const userName = useSelector(state => state.user.userName); // Получаем имя пользователя из Redux store
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
+
     useEffect(() => {
       const fetchQuestions = async () => {
         const response = await fetch('https://opentdb.com/api.php?amount=10&category=25&type=multiple');
@@ -90,18 +80,18 @@ const ArtQuizPage = () => {
       if (isCorrect) {
         setCorrectAnswersCount(correctAnswersCount + 1);
       }
-  
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const nextQuestionIndex = currentQuestionIndex + 1;
+      if (nextQuestionIndex < questions.length) {
+        setCurrentQuestionIndex(nextQuestionIndex);
       } else {
+        // Завершение викторины и отправка результатов
+      dispatch(finishQuizAndSetResultsAction(userId, userName, correctAnswersCount, questions.length));
         setShowResults(true);
       }
     };
   
-    const restartQuiz = () => {
-      setCurrentQuestionIndex(0);
-      setShowResults(false);
-      setCorrectAnswersCount(0);
+    const handleShowStats = () => {
+      navigate('/stats'); 
     };
   
     return (
@@ -121,15 +111,13 @@ const ArtQuizPage = () => {
             </QuizContainer>
           )
         ) : (
-          <QuizContainer>
-            <QuizTitle>Результаты викторины по искусству</QuizTitle>
-            <p>Вы ответили правильно на {correctAnswersCount} из {questions.length} вопросов.</p>
-            <Button onClick={restartQuiz}>Попробовать еще раз</Button>
-            <Button onClick={() => navigate('/themeSelection')}>Выбрать другую тему</Button>
-          </QuizContainer>
-        )}
-        <ChatIcon onClick={() => setShowChat(!showChat)} />
-        {showChat && <ChatWindow onClose={() => setShowChat(false)} />}
+          <ResultsModal
+          correctAnswersCount={correctAnswersCount}
+          totalQuestions={questions.length}
+          onClose={() => setShowResults(false)}
+          onShowStats={handleShowStats}
+        />
+      )}
       </MainPageWrapper>
     );
   };
